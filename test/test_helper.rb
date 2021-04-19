@@ -14,3 +14,9 @@ if ActiveSupport::TestCase.respond_to?(:fixture_path=)
   ActiveSupport::TestCase.file_fixture_path = ActiveSupport::TestCase.fixture_path + "/files"
   ActiveSupport::TestCase.fixtures :all
 end
+
+ActiveRecord::Encryption.configure \
+  primary_key: "test master key",
+  deterministic_key: "test deterministic key",
+  key_derivation_salt: "testing key derivation salt",
+  support_unencrypted_data: true

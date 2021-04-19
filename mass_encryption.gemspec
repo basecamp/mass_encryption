@@ -12,4 +12,5 @@ Gem::Specification.new do |spec|
   spec.metadata["homepage_uri"] = spec.homepage
 
   spec.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
+  spec.add_development_dependency "mysql2"
 end

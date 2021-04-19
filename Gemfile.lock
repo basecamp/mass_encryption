@@ -109,6 +109,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.0)
     minitest (5.14.4)
+    mysql2 (0.5.3)
     nio4r (2.5.7)
     nokogiri (1.11.3-x86_64-darwin)
       racc (~> 1.4)
@@ -143,6 +144,7 @@ PLATFORMS
 
 DEPENDENCIES
   mass_encryption!
+  mysql2
   rails!
   sqlite3
 
