@@ -2,6 +2,8 @@
 ENV["RAILS_ENV"] = "test"
 
 require_relative "../test/dummy/config/environment"
+require_relative "helpers/encryption_test_helper"
+
 ActiveRecord::Migrator.migrations_paths = [File.expand_path("../test/dummy/db/migrate", __dir__)]
 ActiveRecord::Migrator.migrations_paths << File.expand_path('../db/migrate', __dir__)
 require "rails/test_help"
@@ -20,3 +22,13 @@ ActiveRecord::Encryption.configure \
   deterministic_key: "test deterministic key",
   key_derivation_salt: "testing key derivation salt",
   support_unencrypted_data: true
+
+class ActiveSupport::TestCase
+  include ActiveJob::TestHelper, EncryptionTestHelper
+
+  setup do
+    # Make sure model classes are loaded
+    Person
+    Post
+  end
+end
