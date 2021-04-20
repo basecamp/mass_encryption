@@ -5,13 +5,13 @@ class MassEncryption::BatchSerializer < ActiveJob::Serializers::ObjectSerializer
 
   def serialize(batch)
     super(
-      "klass" => batch.klass,
+      "klass" => batch.klass.name,
       "from_id" => batch.from_id,
       "size" => batch.size
     )
   end
 
   def deserialize(hash)
-    MassEncryption::Batch.new(klass: hash["klass"], from_id: hash["from_id"], size: hash["size"])
+    MassEncryption::Batch.new(klass: hash["klass"].constantize, from_id: hash["from_id"], size: hash["size"])
   end
 end
