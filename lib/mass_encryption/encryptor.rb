@@ -1,7 +1,7 @@
 class MassEncryption::Encryptor
   DEFAULT_BATCH_SIZE = 1000
 
-  def initialize(only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE, silent: Rails.env.test?)
+  def initialize(only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE)
     only = Array(only || all_encryptable_classes)
     except = Array(except)
 
@@ -17,14 +17,8 @@ class MassEncryption::Encryptor
   private
     attr_reader :encryptable_classes, :batch_size, :silent
 
-    def enqueue_encryption_jobs_for(encryptable_class)
-      progress_bar = build_progress_bar_for(encryptable_class)
-      progress_bar.log encryptable_class.name
-
-      encryptable_class.all.in_batches(of: batch_size) do |records|
-        MassEncryption::BatchEncryptionJob.perform_later(klass: encryptable_class, from_id: records.first.id, to_id: records.last.id)
-        progress_bar.increment
-      end
+    def enqueue_encryption_jobs_for(klass)
+      MassEncryption::EncryptionJobsEnqueuerJob.perform_later(klass: klass, batch_size: batch_size)
     end
 
     def all_encryptable_classes
@@ -34,29 +28,10 @@ class MassEncryption::Encryptor
       end
     end
 
-    def build_progress_bar_for(klass)
-      if silent
-        NullProgressBar.new
-      else
-        total = 1 + count_from_table_stats(klass) / batch_size
-        ProgressBar.create(title: "Add encryption jobs", format: "%t (%E): |%B|", total: total)
-      end
-    end
-
     # Huge table freezes when counting with SQL. Extract count from stats instead.
     def count_from_table_stats(klass)
       result = klass.connection.execute("show table status like '#{klass.table_name}'")
       result.first[result.fields.index("Rows")]
-    end
-
-    class NullProgressBar
-      def increment
-
-      end
-
-      def log(message)
-
-      end
     end
 end
 

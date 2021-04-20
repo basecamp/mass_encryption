@@ -88,7 +88,6 @@ PATH
   remote: .
   specs:
     mass_encryption (0.1.0)
-      ruby-progressbar
 
 GEM
   remote: https://rubygems.org/
