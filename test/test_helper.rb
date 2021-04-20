@@ -25,10 +25,4 @@ ActiveRecord::Encryption.configure \
 
 class ActiveSupport::TestCase
   include ActiveJob::TestHelper, EncryptionTestHelper
-
-  setup do
-    # Make sure model classes are loaded
-    Person
-    Post
-  end
 end
