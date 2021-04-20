@@ -18,7 +18,8 @@ class MassEncryption::Encryptor
     attr_reader :encryptable_classes, :batch_size, :silent
 
     def enqueue_encryption_jobs_for(klass)
-      MassEncryption::EncryptionJobsEnqueuerJob.perform_later(klass: klass, batch_size: batch_size)
+      first_batch = MassEncryption::Batch.first_for(klass, size: batch_size)
+      MassEncryption::BatchEncryptionJob.perform_later(first_batch)
     end
 
     def all_encryptable_classes
