@@ -1,5 +1,5 @@
 namespace :mass_encryption do
-  task :encrypt_all_later, [:only, :except] => :environment do |task, args|
+  task :encrypt_all_in_jobs, [:only, :except] => :environment do |task, args|
     only = classes_from(args[:only])
     except = classes_from(args[:except])
 
