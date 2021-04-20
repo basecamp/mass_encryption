@@ -1,5 +1,5 @@
 class MassEncryption::Batch
-  attr_reader :klass, :from_id, :size
+  attr_reader :from_id, :size
 
   DEFAULT_BATCH_SIZE = 1000
 
@@ -10,9 +10,13 @@ class MassEncryption::Batch
   end
 
   def initialize(klass:, from_id:, size: DEFAULT_BATCH_SIZE)
-    @klass = klass
+    @class_name = klass.name # not storing class as instance variable as it causes stack overflow error with json serialization
     @from_id = from_id
     @size = size
+  end
+
+  def klass
+    @class_name.constantize
   end
 
   def encrypt
