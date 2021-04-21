@@ -10,16 +10,31 @@ class MassEncryption::Encryptor
     @silent = silent
   end
 
-  def encrypt_all_later
-    encryptable_classes.each { enqueue_encryption_jobs_for(_1) }
+  def encrypt_all_later(sequential: true)
+    encryptable_classes.each { enqueue_encryption_jobs_for(_1, sequential: sequential) }
   end
 
   private
     attr_reader :encryptable_classes, :batch_size, :silent
 
-    def enqueue_encryption_jobs_for(klass)
+    def enqueue_encryption_jobs_for(klass, sequential: true)
+      if sequential
+        enqueue_sequential_encryption_jobs_for(klass)
+      else
+        enqueue_parallel_encryption_jobs_for(klass)
+      end
+    end
+
+    def enqueue_sequential_encryption_jobs_for(klass)
       first_batch = MassEncryption::Batch.first_for(klass, size: batch_size)
-      MassEncryption::BatchEncryptionJob.perform_later(first_batch)
+      MassEncryption::BatchEncryptionJob.perform_later(first_batch, auto_enqueue_next: true)
+    end
+
+    def enqueue_parallel_encryption_jobs_for(klass)
+      klass.in_batches(of: batch_size) do |records|
+        batch = MassEncryption::Batch.new(klass: klass, from_id: records.first.id, size: batch_size)
+        MassEncryption::BatchEncryptionJob.perform_later(batch, auto_enqueue_next: false)
+      end
     end
 
     def all_encryptable_classes
