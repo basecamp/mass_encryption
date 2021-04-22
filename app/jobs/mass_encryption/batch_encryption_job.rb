@@ -5,4 +5,6 @@ class MassEncryption::BatchEncryptionJob < MassEncryption::ApplicationJob
       self.class.perform_later batch.next if auto_enqueue_next
     end
   end
+
+  ActiveSupport.run_load_hooks(:mass_encryption_batch_job, self)
 end
