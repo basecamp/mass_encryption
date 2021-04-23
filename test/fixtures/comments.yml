@@ -1,0 +1,4 @@
+agree:
+  created_at: <%= 1.day.ago %>
+disagree:
+  created_at: <%= 1.day.ago %>

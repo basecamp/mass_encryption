@@ -6,8 +6,7 @@ class EncryptorTest < ActiveSupport::TestCase
       MassEncryption::Encryptor.new.encrypt_all_later(sequential: true)
     end
 
-    assert_encrypted_records Post.all
-    assert_encrypted_records Person.all
+    assert_everything_is_encrypted
   end
 
   test "encrypt all the records in parallel" do
@@ -15,8 +14,7 @@ class EncryptorTest < ActiveSupport::TestCase
       MassEncryption::Encryptor.new.encrypt_all_later(sequential: false)
     end
 
-    assert_encrypted_records Post.all
-    assert_encrypted_records Person.all
+    assert_everything_is_encrypted
   end
 
   test "provide classes to encrypt" do
@@ -25,6 +23,7 @@ class EncryptorTest < ActiveSupport::TestCase
     end
 
     assert_not_encrypted_records Post.all
+    assert_not_encrypted_records ActionText::EncryptedRichText.all
     assert_encrypted_records Person.all
   end
 
@@ -34,6 +33,7 @@ class EncryptorTest < ActiveSupport::TestCase
     end
 
     assert_encrypted_records Post.all
+    assert_encrypted_records ActionText::EncryptedRichText.all
     assert_not_encrypted_records Person.all
   end
 
@@ -61,5 +61,13 @@ class EncryptorTest < ActiveSupport::TestCase
     end
 
     assert_performed_jobs Post.count, only: MassEncryption::BatchEncryptionJob
+  end
+
+  test "encrypting includes encrypted rich texts attributes" do
+    perform_enqueued_jobs only: MassEncryption::BatchEncryptionJob do
+      MassEncryption::Encryptor.new.encrypt_all_later
+    end
+
+    assert_encrypted_records ActionText::EncryptedRichText.all
   end
 end

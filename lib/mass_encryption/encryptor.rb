@@ -1,5 +1,6 @@
 class MassEncryption::Encryptor
   DEFAULT_BATCH_SIZE = 1000
+
   def initialize(only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE)
     only = Array(only || all_encryptable_classes)
     except = Array(except)
@@ -16,7 +17,7 @@ class MassEncryption::Encryptor
   private
     attr_reader :encryptable_classes, :batch_size, :silent
 
-    EXCLUDED_FROM_AUTO_DETECTION = [ ActionText::EncryptedRichText ] # They get encrypted as part of the parent record
+    EXCLUDED_FROM_AUTO_DETECTION = [ActionText::EncryptedRichText] # They get encrypted as part of the parent record
 
     def enqueue_encryption_jobs_for(klass, sequential: true)
       if sequential
@@ -41,8 +42,20 @@ class MassEncryption::Encryptor
     def all_encryptable_classes
       @all_encryptable_classes ||= begin
         Rails.application.eager_load! unless Rails.application.config.eager_load
-        ActiveRecord::Base.descendants.find_all { |klass| klass.encrypted_attributes.present? } - EXCLUDED_FROM_AUTO_DETECTION
+        ActiveRecord::Base.descendants.find_all{ |klass| encryptable_class?(klass) } - EXCLUDED_FROM_AUTO_DETECTION
       end
+    end
+
+    def encryptable_class?(klass)
+      has_encrypted_attributes?(klass) || has_encrypted_rich_text_attribute?(klass)
+    end
+
+    def has_encrypted_attributes?(klass)
+      klass.encrypted_attributes.present?
+    end
+
+    def has_encrypted_rich_text_attribute?(klass)
+      klass.reflect_on_all_associations(:has_one).find { |relation| relation.klass == ActionText::EncryptedRichText }
     end
 
     # Huge table freezes when counting with SQL. Extract count from stats instead.
