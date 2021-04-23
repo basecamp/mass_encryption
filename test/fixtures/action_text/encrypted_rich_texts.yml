@@ -1,0 +1,10 @@
+agree:
+  record: agree (Comment)
+  name: content
+  body: <p>I agree!</p>
+
+disagree:
+  record: disagree (Comment)
+  name: content
+  body: <p>I disagree!</p>
+

@@ -1,5 +1,11 @@
 module EncryptionTestHelper
   private
+    def assert_everything_is_encrypted
+      assert_encrypted_records Post.all
+      assert_encrypted_records Person.all
+      assert_encrypted_records ActionText::EncryptedRichText.all
+    end
+
     def assert_encrypted_records(records)
       Array(records).each do |record|
         assert_encrypted_record record
@@ -18,7 +24,11 @@ module EncryptionTestHelper
       clear_value = record.public_send(attribute_name)
       encrypted_value = record.ciphertext_for(attribute_name)
 
-      assert_not_equal clear_value, encrypted_value
+      if record.is_a?(ActionText::EncryptedRichText)
+        assert_not clear_value.to_html.include?(encrypted_value)
+      else
+        assert_not_equal clear_value, encrypted_value
+      end
       assert_equal clear_value, record.class.type_for_attribute(attribute_name).deserialize(encrypted_value)
     end
 
@@ -40,6 +50,10 @@ module EncryptionTestHelper
       clear_value = record.public_send(attribute_name)
       encrypted_value = record.ciphertext_for(attribute_name)
 
-      assert_equal clear_value, encrypted_value
+      if record.is_a?(ActionText::EncryptedRichText)
+        assert clear_value.to_html.include?(encrypted_value)
+      else
+        assert_equal clear_value, encrypted_value
+      end
     end
 end
