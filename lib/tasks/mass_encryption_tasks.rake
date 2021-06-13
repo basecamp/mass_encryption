@@ -3,7 +3,7 @@ namespace :mass_encryption do
     only = classes_from(args[:only])
     except = classes_from(args[:except])
 
-    MassEncryption::Encryptor.new(only: only, except: except).encrypt_all_later(sequential: false)
+    MassEncryption::Encryptor.new(only: only, except: except).encrypt_all_later(sequential: true)
   end
 
   task :encrypt_all_in_parallel_jobs, [:only, :except] => :environment do |task, args|
