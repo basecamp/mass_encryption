@@ -15,7 +15,7 @@ namespace :mass_encryption do
 
   def classes_from(string)
     if string.present?
-      class_strings = string.split(/\s,:/).filter(&:present?)
+      class_strings = string.split(/[\s,:]/).filter(&:present?)
       class_strings.collect(&:constantize)
     end
   end
