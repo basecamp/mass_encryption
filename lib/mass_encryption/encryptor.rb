@@ -57,11 +57,5 @@ class MassEncryption::Encryptor
     def has_encrypted_rich_text_attribute?(klass)
       klass.reflect_on_all_associations(:has_one).find { |relation| relation.klass == ActionText::EncryptedRichText }
     end
-
-    # Huge table freezes when counting with SQL. Extract count from stats instead.
-    def count_from_table_stats(klass)
-      result = klass.connection.execute("show table status like '#{klass.table_name}'")
-      result.first[result.fields.index("Rows")]
-    end
 end
 
