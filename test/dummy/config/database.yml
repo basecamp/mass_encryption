@@ -1,7 +1,7 @@
 default: &default
   adapter: mysql2
   host: <%= ENV.fetch("DB_HOST") { "127.0.0.1" } %>
-  port: <%= ENV.fetch("DB_PORT") { 33306 } %>
+  port: <%= ENV.fetch("DB_PORT") { 3306 } %>
   pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
   timeout: 5000
   encoding: utf8mb4
