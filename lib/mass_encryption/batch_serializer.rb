@@ -7,7 +7,8 @@ class MassEncryption::BatchSerializer < ActiveJob::Serializers::ObjectSerializer
     super(
       "klass" => batch.klass.name,
       "from_id" => batch.from_id,
-      "size" => batch.size
+      "size" => batch.size,
+      "offset" => batch.offset || 0
     )
   end
 
