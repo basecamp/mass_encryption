@@ -56,4 +56,11 @@ module EncryptionTestHelper
         assert_equal clear_value, encrypted_value
       end
     end
+
+    def assert_encrypted_posts(from:, to:)
+      post_that_should_be_encrypted = Post.order(id: :asc)[from..to]
+
+      assert_encrypted_records post_that_should_be_encrypted
+      assert_not_encrypted_records Post.all - post_that_should_be_encrypted
+    end
 end

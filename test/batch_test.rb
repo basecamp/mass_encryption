@@ -28,12 +28,4 @@ class BatchTest < ActiveSupport::TestCase
     batch = MassEncryption::Batch.new(klass: Post, from_id: Post.first.id, size: 100)
     assert batch.present?
   end
-
-  private
-    def assert_encrypted_posts(from:, to:)
-      post_that_should_be_encrypted = Post.order(id: :asc)[from..to]
-
-      assert_encrypted_records post_that_should_be_encrypted
-      assert_not_encrypted_records Post.all - post_that_should_be_encrypted
-    end
 end

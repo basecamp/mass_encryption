@@ -25,8 +25,8 @@ class MassEncryption::Batch
     records.each(&:encrypt)
   end
 
-  def encrypt_later(auto_enque_next: false)
-    MassEncryption::BatchEncryptionJob.perform_later(self, auto_enque_next: auto_enque_next)
+  def encrypt_later(auto_enqueue_next: false)
+    MassEncryption::BatchEncryptionJob.perform_later(self, auto_enqueue_next: auto_enqueue_next)
   end
 
   def present?
