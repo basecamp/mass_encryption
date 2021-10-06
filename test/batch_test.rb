@@ -6,19 +6,19 @@ class BatchTest < ActiveSupport::TestCase
     assert_encrypted_posts from: 0, to: 0 + 3 - 1
   end
 
-  test "encrypt the passed with offset" do
-    MassEncryption::Batch.new(klass: Post, from_id: Post.third.id, size: 10, offset: 3).encrypt_now
-    assert_encrypted_posts from: 2 + 3, to: 2 + 3 + 10 - 1
+  test "encrypt the passed with page" do
+    MassEncryption::Batch.new(klass: Post, from_id: Post.third.id, size: 10, page: 2).encrypt_now
+    assert_encrypted_posts from: 2 + 20 - 1, to: 2 + 20 + 10 - 1
   end
 
   test "next returns the next batch" do
-    batch = MassEncryption::Batch.new(klass: Post, from_id: Post.first.id, size: 2, offset: 3)
+    batch = MassEncryption::Batch.new(klass: Post, from_id: Post.first.id, size: 5, page: 2)
     next_batch = batch.next
 
-    assert_equal Post.order(id: :asc)[2 + 3 - 1].id + 1, next_batch.from_id
+    assert_equal Post.order(id: :asc)[5 - 1 + (2 * 5) - 1].id + 1, next_batch.from_id
     assert_equal Post,  next_batch.klass
-    assert_equal 2,  next_batch.size
-    assert_equal 3,  next_batch.offset
+    assert_equal 5,  next_batch.size
+    assert_equal 2,  next_batch.page
   end
 
   test "present? returns whether there are records in the batch or not" do

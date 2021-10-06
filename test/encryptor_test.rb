@@ -22,8 +22,8 @@ class EncryptorTest < ActiveSupport::TestCase
 
     batch_1, batch_2 = enqueued_jobs.collect { |serialized_job| instantiate_job(serialized_job).arguments.first }.flatten
 
-    assert_equal 0, batch_1.offset
-    assert_equal 2, batch_2.offset
+    assert_equal 0, batch_1.page
+    assert_equal 1, batch_2.page
   end
 
   test "provide classes to encrypt" do

@@ -35,8 +35,8 @@ class MassEncryption::Encryptor
     end
 
     def enqueue_track_encryption_jobs_for(klass)
-      tracks_count.times.each do |track_index|
-        MassEncryption::Batch.first_for(klass, size: batch_size, offset: track_index * batch_size).encrypt_later(auto_enqueue_next: true)
+      tracks_count.times.each do |page|
+        MassEncryption::Batch.first_for(klass, size: batch_size, page: page).encrypt_later(auto_enqueue_next: true)
       end
     end
 
