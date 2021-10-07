@@ -45,7 +45,7 @@ class MassEncryption::Batch
       if page == 0
         from_id # save a query to determine the id for the first page
       else
-        ids_in_the_same_track[offset - 1] || from_id
+        ids_in_the_same_track.last || from_id
       end
     end
 
