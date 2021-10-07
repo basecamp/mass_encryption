@@ -54,6 +54,6 @@ class MassEncryption::Batch
     end
 
     def ids_in_the_same_track
-      klass.where("id >= ?", from_id).order(id: :asc).limit(offset).pluck(:id)
+      klass.where("id >= ?", from_id).order(id: :asc).limit(offset).ids
     end
 end
