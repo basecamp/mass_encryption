@@ -9,6 +9,8 @@ class MassEncryption::Encryptor
     @batch_size = batch_size
     @silent = silent
     @tracks_count = tracks_count
+
+    puts info_message
   end
 
   def encrypt_all_later
@@ -18,12 +20,28 @@ class MassEncryption::Encryptor
   private
     attr_reader :encryptable_classes, :batch_size, :silent, :tracks_count
 
+    def info_message
+      message = "Encrypting #{encryptable_classes.count} models"
+      message << if execute_in_sequential_tracks?
+        " with #{tracks_count} head jobs"
+      else
+        " with parallel jobs"
+      end
+      message << "\n\t#{encryptable_classes.collect(&:name).join(", ")}\n\n"
+
+      message
+    end
+
     def enqueue_encryption_jobs_for(klass)
-      if tracks_count.present?
+      if execute_in_sequential_tracks?
         enqueue_track_encryption_jobs_for(klass)
       else
         enqueue_all_encryption_jobs_for(klass)
       end
+    end
+
+    def execute_in_sequential_tracks?
+      tracks_count.present?
     end
 
     def enqueue_all_encryption_jobs_for(klass)
