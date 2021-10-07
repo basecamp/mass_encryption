@@ -4,14 +4,14 @@ namespace :mass_encryption do
     except = classes_from(args[:except])
     tracks = (args[:tracks] || 1).to_i
 
-    MassEncryption::Encryptor.new(only: only, except: except, tracks_count: tracks).encrypt_all_later
+    MassEncryption::Encryptor.new(only: only, except: except, tracks_count: tracks, silent: false).encrypt_all_later
   end
 
   task :encrypt_all_in_parallel_jobs, [ :only, :except ] => :environment do |task, args|
     only = classes_from(args[:only])
     except = classes_from(args[:except])
 
-    MassEncryption::Encryptor.new(only: only, except: except).encrypt_all_later
+    MassEncryption::Encryptor.new(only: only, except: except, silent: false).encrypt_all_later
   end
 
   def classes_from(string)

@@ -1,7 +1,7 @@
 class MassEncryption::Encryptor
   DEFAULT_BATCH_SIZE = 1000
 
-  def initialize(only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE, tracks_count: nil)
+  def initialize(only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE, tracks_count: nil, silent: true)
     only = Array(only || all_encryptable_classes)
     except = Array(except)
 
@@ -10,7 +10,7 @@ class MassEncryption::Encryptor
     @silent = silent
     @tracks_count = tracks_count
 
-    puts info_message
+    puts info_message unless silent
   end
 
   def encrypt_all_later
