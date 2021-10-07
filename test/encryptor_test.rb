@@ -79,4 +79,20 @@ class EncryptorTest < ActiveSupport::TestCase
 
     assert_encrypted_records ActionText::EncryptedRichText.all
   end
+
+  test "don't fail when there are no records to encrypt" do
+    Post.delete_all
+
+    assert_nothing_raised do
+      perform_enqueued_jobs only: MassEncryption::BatchEncryptionJob do
+        MassEncryption::Encryptor.new.encrypt_all_later
+      end
+    end
+
+    assert_nothing_raised do
+      perform_enqueued_jobs only: MassEncryption::BatchEncryptionJob do
+        MassEncryption::Encryptor.new(tracks_count: 1).encrypt_all_later
+      end
+    end
+  end
 end

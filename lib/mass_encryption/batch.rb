@@ -5,7 +5,7 @@ class MassEncryption::Batch
 
   class << self
     def first_for(klass, size: DEFAULT_BATCH_SIZE, page: 0)
-      MassEncryption::Batch.new(klass: klass, from_id: klass.first.id, size: size, page: page)
+      MassEncryption::Batch.new(klass: klass, from_id: klass.first.id, size: size, page: page) if klass.first
     end
   end
 
