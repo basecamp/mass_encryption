@@ -21,8 +21,7 @@ class MassEncryption::Batch
   end
 
   def encrypt_now
-    # Not using .upsert_all because MySQL is not fully supported (we'd need +unique_by:+ to be supported)
-    records.each(&:encrypt)
+    klass.upsert_all records.collect(&:attributes)
   end
 
   def encrypt_later(auto_enqueue_next: false)

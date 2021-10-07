@@ -18,8 +18,6 @@ class MassEncryption::Encryptor
   private
     attr_reader :encryptable_classes, :batch_size, :silent, :tracks_count
 
-    EXCLUDED_FROM_AUTO_DETECTION = [ ActionText::EncryptedRichText ] # They get encrypted as part of the parent record
-
     def enqueue_encryption_jobs_for(klass)
       if tracks_count.present?
         enqueue_track_encryption_jobs_for(klass)
@@ -43,7 +41,7 @@ class MassEncryption::Encryptor
     def all_encryptable_classes
       @all_encryptable_classes ||= begin
         Rails.application.eager_load! unless Rails.application.config.eager_load
-        ActiveRecord::Base.descendants.find_all { |klass| encryptable_class?(klass) } - EXCLUDED_FROM_AUTO_DETECTION
+        ActiveRecord::Base.descendants.find_all { |klass| encryptable_class?(klass) }
       end
     end
 

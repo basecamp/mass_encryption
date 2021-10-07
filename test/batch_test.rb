@@ -28,4 +28,15 @@ class BatchTest < ActiveSupport::TestCase
     batch = MassEncryption::Batch.new(klass: Post, from_id: Post.first.id, size: 100)
     assert batch.present?
   end
+
+  test "encrypting actually re-encrypts encrypted data" do
+    post = Post.first
+    post.encrypt
+    assert_encrypted_record post
+    original_ciphertext = post.ciphertext_for(:title)
+
+    MassEncryption::Batch.new(klass: Post, from_id: post.id, size: 1).encrypt_now
+    assert_encrypted_record post.reload
+    assert_not_equal original_ciphertext, post.ciphertext_for(:title)
+  end
 end
