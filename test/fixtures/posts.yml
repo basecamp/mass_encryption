@@ -1,5 +1,4 @@
-hello_world:
-  title: Hellow world
-
-some_announcement:
-  title: Some announcement
+<% 30.times do |index| %>
+post_<%= index %>:
+  title: Some post <%= index %>
+<% end %>

@@ -3,8 +3,8 @@ require_relative "lib/mass_encryption/version"
 Gem::Specification.new do |spec|
   spec.name        = "mass_encryption"
   spec.version     = MassEncryption::VERSION
-  spec.authors     = ["Jorge Manrubia"]
-  spec.email       = ["jorge.manrubia@gmail.com"]
+  spec.authors     = [ "Jorge Manrubia" ]
+  spec.email       = [ "jorge.manrubia@gmail.com" ]
   spec.homepage    = "http://github.com/basecamp/mass_encryption/settings/access"
   spec.summary     = "Mass encryption for active record"
   spec.license     = "MIT"

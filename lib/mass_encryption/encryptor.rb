@@ -1,48 +1,65 @@
 class MassEncryption::Encryptor
   DEFAULT_BATCH_SIZE = 1000
 
-  def initialize(only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE)
+  def initialize(only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE, tracks_count: nil, silent: true)
     only = Array(only || all_encryptable_classes)
     except = Array(except)
 
     @encryptable_classes = only - except
     @batch_size = batch_size
     @silent = silent
+    @tracks_count = tracks_count
+
+    puts info_message unless silent
   end
 
-  def encrypt_all_later(sequential: true)
-    encryptable_classes.each { enqueue_encryption_jobs_for(_1, sequential: sequential) }
+  def encrypt_all_later
+    encryptable_classes.each { |klass| enqueue_encryption_jobs_for(klass) }
   end
 
   private
-    attr_reader :encryptable_classes, :batch_size, :silent
+    attr_reader :encryptable_classes, :batch_size, :silent, :tracks_count
 
-    EXCLUDED_FROM_AUTO_DETECTION = [ActionText::EncryptedRichText] # They get encrypted as part of the parent record
-
-    def enqueue_encryption_jobs_for(klass, sequential: true)
-      if sequential
-        enqueue_sequential_encryption_jobs_for(klass)
+    def info_message
+      message = "Encrypting #{encryptable_classes.count} models"
+      message << if execute_in_sequential_tracks?
+        " with #{tracks_count} head jobs"
       else
-        enqueue_parallel_encryption_jobs_for(klass)
+        " with parallel jobs"
+      end
+      message << "\n\t#{encryptable_classes.collect(&:name).join(", ")}\n\n"
+
+      message
+    end
+
+    def enqueue_encryption_jobs_for(klass)
+      if execute_in_sequential_tracks?
+        enqueue_track_encryption_jobs_for(klass)
+      else
+        enqueue_all_encryption_jobs_for(klass)
       end
     end
 
-    def enqueue_sequential_encryption_jobs_for(klass)
-      first_batch = MassEncryption::Batch.first_for(klass, size: batch_size)
-      MassEncryption::BatchEncryptionJob.perform_later(first_batch, auto_enqueue_next: true)
+    def execute_in_sequential_tracks?
+      tracks_count.present?
     end
 
-    def enqueue_parallel_encryption_jobs_for(klass)
+    def enqueue_all_encryption_jobs_for(klass)
       klass.in_batches(of: batch_size) do |records|
-        batch = MassEncryption::Batch.new(klass: klass, from_id: records.first.id, size: batch_size)
-        MassEncryption::BatchEncryptionJob.perform_later(batch, auto_enqueue_next: false)
+        MassEncryption::Batch.new(klass: klass, from_id: records.first.id, size: batch_size).encrypt_later(auto_enqueue_next: false)
+      end
+    end
+
+    def enqueue_track_encryption_jobs_for(klass)
+      tracks_count.times.each do |page|
+        MassEncryption::Batch.first_for(klass, size: batch_size, page: page)&.encrypt_later(auto_enqueue_next: true)
       end
     end
 
     def all_encryptable_classes
       @all_encryptable_classes ||= begin
         Rails.application.eager_load! unless Rails.application.config.eager_load
-        ActiveRecord::Base.descendants.find_all{ |klass| encryptable_class?(klass) } - EXCLUDED_FROM_AUTO_DETECTION
+        ActiveRecord::Base.descendants.find_all { |klass| encryptable_class?(klass) }
       end
     end
 
@@ -57,11 +74,4 @@ class MassEncryption::Encryptor
     def has_encrypted_rich_text_attribute?(klass)
       klass.reflect_on_all_associations(:has_one).find { |relation| relation.klass == ActionText::EncryptedRichText }
     end
-
-    # Huge table freezes when counting with SQL. Extract count from stats instead.
-    def count_from_table_stats(klass)
-      result = klass.connection.execute("show table status like '#{klass.table_name}'")
-      result.first[result.fields.index("Rows")]
-    end
 end
-
