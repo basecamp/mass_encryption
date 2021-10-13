@@ -21,7 +21,9 @@ class MassEncryption::Batch
   end
 
   def encrypt_now
-    klass.upsert_all records.collect(&:attributes)
+    if klass.encrypted_attributes.present?
+      klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
+    end
   end
 
   def encrypt_later(auto_enqueue_next: false)
@@ -37,6 +39,12 @@ class MassEncryption::Batch
   end
 
   private
+    def encrypted_attributes_assignments_sql
+      klass.encrypted_attributes.collect do |name|
+        "`#{name}`=VALUES(`#{name}`)"
+      end.join(", ")
+    end
+
     def records
       @records ||= klass.where("id >= ?", determine_from_id).order(id: :asc).limit(size)
     end
