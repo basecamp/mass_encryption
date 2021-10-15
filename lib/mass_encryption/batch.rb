@@ -4,16 +4,17 @@ class MassEncryption::Batch
   DEFAULT_BATCH_SIZE = 1000
 
   class << self
-    def first_for(klass, size: DEFAULT_BATCH_SIZE, page: 0)
-      MassEncryption::Batch.new(klass: klass, from_id: klass.first.id, size: size, page: page) if klass.first
+    def first_for(klass, size: DEFAULT_BATCH_SIZE, page: 0, pages_in_track: 1)
+      MassEncryption::Batch.new(klass: klass, from_id: klass.first.id, size: size, page: page, pages_in_track: pages_in_track) if klass.first
     end
   end
 
-  def initialize(klass:, from_id:, size: DEFAULT_BATCH_SIZE, page: 0)
+  def initialize(klass:, from_id:, size: DEFAULT_BATCH_SIZE, page: 0, pages_in_track: 1)
     @class_name = klass.name # not storing class as instance variable as it causes stack overflow error with json serialization
     @from_id = from_id
     @size = size
     @page = page
+    @pages_in_track = pages_in_track
   end
 
   def klass
@@ -35,7 +36,11 @@ class MassEncryption::Batch
   end
 
   def next
-    self.class.new(klass: klass, from_id: records.last.id + 1, size: size, page: page)
+    self.class.new(klass: klass, from_id: next_track_records.last.id, size: size, page: page)
+  end
+
+  def records
+    @records ||= klass.where("id >= ?", determine_from_id).order(id: :asc).limit(size)
   end
 
   private
@@ -43,10 +48,6 @@ class MassEncryption::Batch
       klass.encrypted_attributes.collect do |name|
         "`#{name}`=VALUES(`#{name}`)"
       end.join(", ")
-    end
-
-    def records
-      @records ||= klass.where("id >= ?", determine_from_id).order(id: :asc).limit(size)
     end
 
     def determine_from_id
@@ -63,5 +64,9 @@ class MassEncryption::Batch
 
     def ids_in_the_same_track
       klass.where("id >= ?", from_id).order(id: :asc).limit(offset).ids
+    end
+
+    def next_track_records
+      klass.where("id >= ?", from_id).order(id: :asc).limit(size + size * @pages_in_track)
     end
 end

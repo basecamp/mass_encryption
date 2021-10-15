@@ -12,10 +12,10 @@ class BatchTest < ActiveSupport::TestCase
   end
 
   test "next returns the next batch" do
-    batch = MassEncryption::Batch.new(klass: Post, from_id: Post.first.id, size: 5, page: 2)
+    batch = MassEncryption::Batch.new(klass: Post, from_id: Post.first.id, size: 5, page: 2, pages_in_track: 3)
     next_batch = batch.next
 
-    assert_equal Post.order(id: :asc)[5 - 1 + (2 * 5) - 1].id + 1, next_batch.from_id
+    assert_equal Post.order(id: :asc)[(2 + 1) * 5 + (3*5) - 1].id + 1, next_batch.from_id
     assert_equal Post,  next_batch.klass
     assert_equal 5,  next_batch.size
     assert_equal 2,  next_batch.page
@@ -43,7 +43,7 @@ class BatchTest < ActiveSupport::TestCase
   test "encrypting won't change timestamps" do
     post = Post.first
     post.update_column :updated_at, 1.day.ago
-    assert_no_changes ->{ post.reload.updated_at} do
+    assert_no_changes -> { post.reload.updated_at } do
       MassEncryption::Batch.new(klass: Post, from_id: post.id, size: 1).encrypt_now
     end
   end

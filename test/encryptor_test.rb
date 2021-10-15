@@ -26,6 +26,28 @@ class EncryptorTest < ActiveSupport::TestCase
     assert_equal 1, batch_2.page
   end
 
+  test "encrypting in tracks won't encrypt things more than once" do
+    assert_enqueued_jobs 2, only: MassEncryption::BatchEncryptionJob do
+      MassEncryption::Encryptor.new(only: Post, tracks_count: 2, batch_size: Post.count / 2).encrypt_all_later
+    end
+
+    batch_1_1, batch_1_2 = enqueued_jobs.collect { |serialized_job| instantiate_job(serialized_job).arguments.first }.flatten
+    batch_1_1.encrypt_now
+    batch_1_2.encrypt_now
+
+    ciphertexts_by_post = (batch_1_1.records + batch_1_2.records).collect { |post| [ post, post.reload.ciphertext_for(:title) ] }.to_h
+
+    batch_2_1, batch_2_2 = batch_1_1.next, batch_1_2.next
+    batch_2_1.encrypt_now
+    batch_2_2.encrypt_now
+
+    assert_encrypted_records Post.order(id: :asc).all
+
+    ciphertexts_by_post.each do |post, title_ciphertext|
+      assert_equal title_ciphertext, post.reload.ciphertext_for(:title)
+    end
+  end
+
   test "provide classes to encrypt" do
     perform_enqueued_jobs only: MassEncryption::BatchEncryptionJob do
       MassEncryption::Encryptor.new(only: [ Person ]).encrypt_all_later

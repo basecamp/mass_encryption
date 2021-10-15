@@ -23,7 +23,7 @@ module EncryptionTestHelper
     def assert_encrypted_attribute(record, attribute_name)
       clear_value = record.public_send(attribute_name)
       encrypted_value = record.ciphertext_for(attribute_name)
-
+      puts "CHECKING #{record.send(attribute_name)}"
       if record.is_a?(ActionText::EncryptedRichText)
         assert_not clear_value.to_html.include?(encrypted_value)
       else
