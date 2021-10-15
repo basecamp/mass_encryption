@@ -22,7 +22,7 @@ class MassEncryption::Batch
 
   def encrypt_now
     if klass.encrypted_attributes.present?
-      klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
+      klass.upsert_all record_attributes_to_upsert, on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
     end
   end
 
@@ -39,6 +39,16 @@ class MassEncryption::Batch
   end
 
   private
+    def record_attributes_to_upsert
+      records.collect do |record|
+        record.attributes.slice(*attribute_names_to_upsert)
+      end
+    end
+
+    def attribute_names_to_upsert
+      @attribute_names_to_upsert ||= klass.encrypted_attributes.to_a.collect(&:to_s).including(klass.primary_key)
+    end
+
     def encrypted_attributes_assignments_sql
       klass.encrypted_attributes.collect do |name|
         "`#{name}`=VALUES(`#{name}`)"
