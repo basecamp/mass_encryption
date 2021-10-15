@@ -22,7 +22,7 @@ class MassEncryption::Batch
 
   def encrypt_now
     if klass.encrypted_attributes.present?
-      klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
+      klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql), record_timestamps: false
     end
   end
 

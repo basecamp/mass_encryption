@@ -39,4 +39,12 @@ class BatchTest < ActiveSupport::TestCase
     assert_encrypted_record post.reload
     assert_not_equal original_ciphertext, post.ciphertext_for(:title)
   end
+
+  test "encrypting won't change timestamps" do
+    post = Post.first
+    post.update_column :updated_at, 1.day.ago
+    assert_no_changes ->{ post.reload.updated_at} do
+      MassEncryption::Batch.new(klass: Post, from_id: post.id, size: 1).encrypt_now
+    end
+  end
 end
