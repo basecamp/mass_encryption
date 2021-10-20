@@ -23,8 +23,13 @@ class MassEncryption::Batch
 
   def encrypt_now
     if klass.encrypted_attributes.present?
+      validate_encrypting_is_allowed
       klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
     end
+  end
+
+  def validate_encrypting_is_allowed
+    raise ActiveRecord::Encryption::Errors::Configuration, "can't mass encrypt while in protected mode" if ActiveRecord::Encryption.context.frozen_encryption?
   end
 
   def encrypt_later(auto_enqueue_next: false)
