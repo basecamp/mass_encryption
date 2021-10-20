@@ -8,11 +8,11 @@ class MassEncryption::BatchSerializer < ActiveJob::Serializers::ObjectSerializer
       "klass" => batch.klass.name,
       "from_id" => batch.from_id,
       "size" => batch.size,
-      "page" => batch.page || 0
+      "track" => batch.track || 0
     )
   end
 
   def deserialize(hash)
-    MassEncryption::Batch.new(klass: hash["klass"].constantize, from_id: hash["from_id"], size: hash["size"], page: hash["page"])
+    MassEncryption::Batch.new(klass: hash["klass"].constantize, from_id: hash["from_id"], size: hash["size"], track: hash["track"])
   end
 end
