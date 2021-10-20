@@ -15,6 +15,12 @@ class BatchTest < ActiveSupport::TestCase
     assert_equal expected_properties, Post.first(20).collect(&:attributes)
   end
 
+  test "encrypting won't insert new data" do
+    assert_no_changes ->{ Post.count }do
+      MassEncryption::Batch.new(klass: Post, from_id: Post.first.id).encrypt_now
+    end
+  end
+
   test "encrypt considering the provided track" do
     MassEncryption::Batch.new(klass: Post, from_id: Post.third.id, size: 10, track: 2).encrypt_now
     assert_encrypted_posts from: 2 + 20, to: 2 + 20 + 10 - 1
