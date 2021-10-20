@@ -22,13 +22,13 @@ class EncryptorTest < ActiveSupport::TestCase
 
     batch_1, batch_2 = enqueued_jobs.collect { |serialized_job| instantiate_job(serialized_job).arguments.first }.flatten
 
-    assert_equal 0, batch_1.page
-    assert_equal 1, batch_2.page
+    assert_equal 0, batch_1.track
+    assert_equal 1, batch_2.track
   end
 
   test "encrypting in tracks won't encrypt things more than once" do
     assert_enqueued_jobs 2, only: MassEncryption::BatchEncryptionJob do
-      MassEncryption::Encryptor.new(only: Post, tracks_count: 2, batch_size: Post.count / 2).encrypt_all_later
+      MassEncryption::Encryptor.new(only: Post, tracks_count: 2, batch_size: Post.count / 4).encrypt_all_later
     end
 
     batch_1_1, batch_1_2 = enqueued_jobs.collect { |serialized_job| instantiate_job(serialized_job).arguments.first }.flatten

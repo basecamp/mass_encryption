@@ -1,20 +1,20 @@
 class MassEncryption::Batch
-  attr_reader :from_id, :size, :page
+  attr_reader :from_id, :size, :track, :tracks_count
 
   DEFAULT_BATCH_SIZE = 1000
 
   class << self
-    def first_for(klass, size: DEFAULT_BATCH_SIZE, page: 0, pages_in_track: 1)
-      MassEncryption::Batch.new(klass: klass, from_id: klass.first.id, size: size, page: page, pages_in_track: pages_in_track) if klass.first
+    def first_for(klass, size: DEFAULT_BATCH_SIZE, track: 0, tracks_count: 1)
+      MassEncryption::Batch.new(klass: klass, from_id: klass.first.id, size: size, track: track, tracks_count: tracks_count) if klass.first
     end
   end
 
-  def initialize(klass:, from_id:, size: DEFAULT_BATCH_SIZE, page: 0, pages_in_track: 1)
+  def initialize(klass:, from_id:, size: DEFAULT_BATCH_SIZE, track: 0, tracks_count: 1)
     @class_name = klass.name # not storing class as instance variable as it causes stack overflow error with json serialization
     @from_id = from_id
     @size = size
-    @page = page
-    @pages_in_track = pages_in_track
+    @track = track
+    @tracks_count = tracks_count
   end
 
   def klass
@@ -36,7 +36,7 @@ class MassEncryption::Batch
   end
 
   def next
-    self.class.new(klass: klass, from_id: next_track_records.last.id, size: size, page: page)
+    self.class.new(klass: klass, from_id: next_track_records.last.id + 1, size: size, track: track)
   end
 
   def records
@@ -51,15 +51,19 @@ class MassEncryption::Batch
     end
 
     def determine_from_id
-      if page == 0
-        from_id # save a query to determine the id for the first page
+      if track == 0
+        from_id # save a query to determine the id for the first track
       else
-        ids_in_the_same_track.last || from_id
+        last_track_id.present? ? (last_track_id + 1) : from_id
       end
     end
 
+    def last_track_id
+      @last_track_id ||= ids_in_the_same_track.last
+    end
+
     def offset
-      page * size
+      track * size
     end
 
     def ids_in_the_same_track
@@ -67,6 +71,6 @@ class MassEncryption::Batch
     end
 
     def next_track_records
-      klass.where("id >= ?", from_id).order(id: :asc).limit(size + size * @pages_in_track)
+      klass.where("id >= ?", from_id).order(id: :asc).limit(size + size * tracks_count)
     end
 end
