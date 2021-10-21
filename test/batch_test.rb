@@ -48,11 +48,13 @@ class BatchTest < ActiveSupport::TestCase
     post = Post.first
     post.encrypt
     assert_encrypted_record post
+    original_title = post.title
     original_ciphertext = post.ciphertext_for(:title)
 
     MassEncryption::Batch.new(klass: Post, from_id: post.id, size: 1).encrypt_now
     assert_encrypted_record post.reload
     assert_not_equal original_ciphertext, post.ciphertext_for(:title)
+    assert_equal original_title, post.title
   end
 
   test "encrypting won't change timestamps" do
