@@ -34,6 +34,7 @@ class BatchTest < ActiveSupport::TestCase
     assert_equal Post, next_batch.klass
     assert_equal 5, next_batch.size
     assert_equal 2, next_batch.track
+    assert_equal 3, next_batch.tracks_count
   end
 
   test "present? returns whether there are records in the batch or not" do

@@ -43,7 +43,7 @@ class MassEncryption::Batch
   end
 
   def next
-    self.class.new(klass: klass, from_id: next_track_records.last.id + 1, size: size, track: track)
+    self.class.new(klass: klass, from_id: next_track_records.last.id + 1, size: size, track: track, tracks_count: tracks_count)
   end
 
   def records
