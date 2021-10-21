@@ -37,7 +37,9 @@ class MassEncryption::Batch
   end
 
   def present?
-    records.present? # we do want to load the association to avoid 2 queries
+    # we deliberately load the association to avoid 2 queries when checking if there are records
+    # before encrypting in +MassEncryption::BatchEncryptionJob+
+    records.present?
   end
 
   def next
