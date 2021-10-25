@@ -22,7 +22,7 @@ class MassEncryption::Batch
   end
 
   def encrypt_now
-    if klass.encrypted_attributes.present?
+    if klass.encrypted_attributes.present? && present?
       validate_encrypting_is_allowed
       klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
     end
@@ -48,6 +48,10 @@ class MassEncryption::Batch
 
   def records
     @records ||= klass.where("id >= ?", determine_from_id).order(id: :asc).limit(size)
+  end
+
+  def to_s
+    "<#{klass}> from: #{from_id} size: #{size} (track=#{track}, tracks_count=#{tracks_count}) | #{records.first.id} - #{records.last.id}"
   end
 
   private
@@ -78,6 +82,6 @@ class MassEncryption::Batch
     end
 
     def next_track_records
-      klass.where("id >= ?", from_id).order(id: :asc).limit(size + size * tracks_count)
+      klass.where("id >= ?", from_id).order(id: :asc).limit(size * tracks_count)
     end
 end

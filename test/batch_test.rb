@@ -30,7 +30,7 @@ class BatchTest < ActiveSupport::TestCase
     batch = MassEncryption::Batch.new(klass: Post, from_id: Post.first.id, size: 5, track: 2, tracks_count: 3)
     next_batch = batch.next
 
-    assert_equal Post.order(id: :asc)[5 + (3 * 5) - 1].id + 1, next_batch.from_id
+    assert_equal Post.order(id: :asc)[(3 * 5) - 1].id + 1, next_batch.from_id
     assert_equal Post, next_batch.klass
     assert_equal 5, next_batch.size
     assert_equal 2, next_batch.track
