@@ -1,5 +1,5 @@
 namespace :mass_encryption do
-  task encrypt_all_in_sequential_jobs: :environment do
+  task encrypt_all_in_tracks: :environment do
     from_id = ENV["FROM_ID"]
     only = classes_from(ENV["ONLY"])
     except = classes_from(ENV["EXCEPT"])
