@@ -3,12 +3,6 @@ class MassEncryption::Batch
 
   DEFAULT_BATCH_SIZE = 1000
 
-  class << self
-    def first_for(klass, size: DEFAULT_BATCH_SIZE, track: 0, tracks_count: 1)
-      MassEncryption::Batch.new(klass: klass, from_id: klass.first.id, size: size, track: track, tracks_count: tracks_count) if klass.first
-    end
-  end
-
   def initialize(klass:, from_id:, size: DEFAULT_BATCH_SIZE, track: 0, tracks_count: 1)
     @class_name = klass.name # not storing class as instance variable as it causes stack overflow error with json serialization
     @from_id = from_id

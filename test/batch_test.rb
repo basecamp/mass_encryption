@@ -16,7 +16,7 @@ class BatchTest < ActiveSupport::TestCase
   end
 
   test "encrypting won't insert new data" do
-    assert_no_changes ->{ Post.count }do
+    assert_no_changes -> { Post.count } do
       MassEncryption::Batch.new(klass: Post, from_id: Post.first.id).encrypt_now
     end
   end
