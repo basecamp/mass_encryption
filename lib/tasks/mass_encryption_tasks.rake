@@ -1,8 +1,8 @@
 namespace :mass_encryption do
   task encrypt_all_in_tracks: :environment do
     from_id = ENV["FROM_ID"]
-    only = classes_from(ENV["ONLY"])
-    except = classes_from(ENV["EXCEPT"])
+    only = MassEncryption::Tasks.classes_from(ENV["ONLY"])
+    except = MassEncryption::Tasks.classes_from(ENV["EXCEPT"])
     tracks = (ENV["TRACKS"] || 1).to_i
 
     MassEncryption::Encryptor.new(from_id: from_id, only: only, except: except, tracks_count: tracks, silent: false).encrypt_all_later
@@ -10,11 +10,15 @@ namespace :mass_encryption do
 
   task encrypt_all_in_parallel_jobs: :environment do
     from_id = ENV["FROM_ID"]
-    only = classes_from(ENV["ONLY"])
-    except = classes_from(ENV["EXCEPT"])
+    only = MassEncryption::Tasks.classes_from(ENV["ONLY"])
+    except = MassEncryption::Tasks.classes_from(ENV["EXCEPT"])
 
     MassEncryption::Encryptor.new(from_id: from_id, only: only, except: except, silent: false).encrypt_all_later
   end
+end
+
+module MassEncryption::Tasks
+  extend self
 
   def classes_from(string)
     if string.present?
