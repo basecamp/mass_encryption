@@ -15,6 +15,30 @@ class EncryptorTest < ActiveSupport::TestCase
     assert_everything_is_encrypted
   end
 
+  test "encrypt all with a from_id in parallel" do
+    all_posts = Post.order(id: :asc)
+    first_post_to_encrypt = all_posts.all[5]
+
+    perform_enqueued_jobs only: MassEncryption::BatchEncryptionJob do
+      MassEncryption::Encryptor.new(from_id: first_post_to_encrypt.id).encrypt_all_later
+    end
+
+    assert_encrypted_records all_posts.where("id >= ?", first_post_to_encrypt.id)
+    assert_not_encrypted_records all_posts.where("id < ?", first_post_to_encrypt.id)
+  end
+
+  test "encrypt all with a from_id in tracks" do
+    all_posts = Post.order(id: :asc)
+    first_post_to_encrypt = all_posts.all[5]
+
+    perform_enqueued_jobs only: MassEncryption::BatchEncryptionJob do
+      MassEncryption::Encryptor.new(from_id: first_post_to_encrypt.id, tracks_count: 4, batch_size: 2).encrypt_all_later
+    end
+
+    assert_encrypted_records all_posts.where("id >= ?", first_post_to_encrypt.id)
+    assert_not_encrypted_records all_posts.where("id < ?", first_post_to_encrypt.id)
+  end
+
   test "encrypting in tracks create the expected tracks" do
     assert_enqueued_jobs 2, only: MassEncryption::BatchEncryptionJob do
       MassEncryption::Encryptor.new(only: Post, tracks_count: 2, batch_size: 2).encrypt_all_later
