@@ -1,6 +1,8 @@
 class MassEncryption::Encryptor
   DEFAULT_BATCH_SIZE = 1000
 
+  delegate :logger, to: MassEncryption
+
   def initialize(from_id: nil, only: nil, except: nil, batch_size: DEFAULT_BATCH_SIZE, tracks_count: nil, silent: true)
     only = Array(only || all_encryptable_classes)
     except = Array(except)
