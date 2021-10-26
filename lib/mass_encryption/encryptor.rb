@@ -11,7 +11,7 @@ class MassEncryption::Encryptor
     @silent = silent
     @tracks_count = tracks_count
 
-    puts info_message unless silent
+    logger.info info_message unless silent
   end
 
   def encrypt_all_later

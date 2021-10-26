@@ -109,6 +109,7 @@ GEM
     method_source (1.0.0)
     mini_mime (1.1.2)
     minitest (5.14.4)
+    mocha (1.13.0)
     mysql2 (0.5.3)
     nio4r (2.5.8)
     nokogiri (1.12.5-x86_64-darwin)
@@ -166,6 +167,7 @@ PLATFORMS
 
 DEPENDENCIES
   mass_encryption!
+  mocha
   mysql2
   rails!
   rubocop
