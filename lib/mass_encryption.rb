@@ -6,5 +6,5 @@ loader = Zeitwerk::Loader.for_gem
 loader.setup
 
 module MassEncryption
-  # Your code goes here...
+  mattr_accessor :logger, default: ActiveSupport::Logger.new(STDOUT)
 end

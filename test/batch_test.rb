@@ -73,4 +73,25 @@ class BatchTest < ActiveSupport::TestCase
       end
     end
   end
+
+  test "encrypt record by record when an error is raised" do
+    Post.expects(:upsert_all).raises "Some error"
+
+    MassEncryption::Batch.new(klass: Post, from_id: 0, size: Post.count).encrypt_now
+
+    assert_encrypted_records Post.all
+  end
+
+  test "encrypt record by record when a record is raised will raise a BatchEncryptionError aggregating the errors" do
+    Post.expects(:upsert_all).raises "An error on upsert"
+    Post.any_instance.stubs(:encrypt).raises "An error on record encrypt"
+
+    error = assert_raises MassEncryption::BatchEncryptionError do
+      MassEncryption::Batch.new(klass: Post, from_id: 0, size: Post.count).encrypt_now
+    end
+
+    Post.all.each do |post|
+      assert_equal "An error on record encrypt", error.errors_by_record[post].message
+    end
+  end
 end

@@ -3,6 +3,8 @@ class MassEncryption::Batch
 
   DEFAULT_BATCH_SIZE = 1000
 
+  delegate :logger, to: MassEncryption
+
   def initialize(klass:, from_id:, size: DEFAULT_BATCH_SIZE, track: 0, tracks_count: 1)
     @class_name = klass.name # not storing class as instance variable as it causes stack overflow error with json serialization
     @from_id = from_id
@@ -18,7 +20,7 @@ class MassEncryption::Batch
   def encrypt_now
     if klass.encrypted_attributes.present? && present?
       validate_encrypting_is_allowed
-      klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
+      encrypt_records
     end
   end
 
@@ -49,10 +51,33 @@ class MassEncryption::Batch
   end
 
   private
+    def encrypt_records
+      encrypt_using_upsert
+    rescue StandardError => error
+      logger.error "Upsert failed with #{error.inspect}. Trying to encrypt record by record..."
+      encrypt_record_by_record
+    end
+
+    def encrypt_using_upsert
+      klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
+    end
+
     def encrypted_attributes_assignments_sql
       klass.encrypted_attributes.collect do |name|
         "`#{name}`=VALUES(`#{name}`)"
       end.join(", ")
+    end
+
+    def encrypt_record_by_record
+      errors_by_record = {}
+
+      records.each do |record|
+        record.encrypt
+      rescue StandardError => error
+        errors_by_record[record] = error
+      end
+
+      raise MassEncryption::BatchEncryptionError.new(errors_by_record) if errors_by_record.present?
     end
 
     def determine_from_id
