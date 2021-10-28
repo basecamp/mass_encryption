@@ -31,6 +31,7 @@ class MassEncryption::Encryptor
         " with parallel jobs"
       end
       message << "\n\t#{encryptable_classes.collect(&:name).join(", ")}\n\n"
+      message << [ "Batch size: #{batch_size}", ("From id: #{from_id}" if from_id), "Tracks count: #{tracks_count}" ].compact.join(" | ")
 
       message
     end
