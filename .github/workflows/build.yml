@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        database: [sqlite, postgres, mysql]
+        database: [mysql]
     services:
       mysql:
         image: percona:5.7.22
