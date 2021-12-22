@@ -16,6 +16,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", ">= 7.0.0"
 
   spec.add_development_dependency "mysql2"
+  spec.add_development_dependency "pg"
   spec.add_development_dependency "rubocop"
   spec.add_development_dependency "rubocop-performance"
   spec.add_development_dependency "rubocop-rails"

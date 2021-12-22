@@ -96,6 +96,7 @@ GEM
     parallel (1.20.1)
     parser (3.0.1.0)
       ast (~> 2.4.1)
+    pg (1.2.3)
     racc (1.6.0)
     rack (2.2.3)
     rack-test (1.1.0)
@@ -168,6 +169,7 @@ DEPENDENCIES
   mass_encryption!
   mocha
   mysql2
+  pg
   rubocop
   rubocop-performance
   rubocop-rails

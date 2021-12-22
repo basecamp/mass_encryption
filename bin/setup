@@ -9,4 +9,6 @@ bundle
 
 echo "Creating databases..."
 
-rails db:setup
+TARGET_DB=sqlite rails db:setup
+TARGET_DB=mysql rails db:setup
+TARGET_DB=postgres rails db:setup

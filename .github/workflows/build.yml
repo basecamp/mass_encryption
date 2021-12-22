@@ -11,7 +11,7 @@ jobs:
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.2
+          ruby-version: 3.0.2
           bundler-cache: true
       - name: Run rubocop
         run: |
@@ -21,10 +21,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        ruby-version: [2.7.2, 3.0.2]
         database: [sqlite, postgres, mysql]
     services:
+      postgres:
+        image: postgres:13.4
+        env:
+          POSTGRES_HOST_AUTH_METHOD: "trust"
+        ports:
+          - 55432:5432
       mysql:
-        image: percona:5.7.22
+        platform: linux/x86_64
+        image: mariadb:latest
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
         ports:
@@ -37,7 +45,7 @@ jobs:
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 2.7.2
+          ruby-version: ${{ matrix.ruby-version }}
           bundler-cache: true
       - name: Setup test database
         run: |
