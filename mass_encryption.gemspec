@@ -4,9 +4,9 @@ Gem::Specification.new do |spec|
   spec.name        = "mass_encryption"
   spec.version     = MassEncryption::VERSION
   spec.authors     = [ "Jorge Manrubia" ]
-  spec.email       = [ "jorge.manrubia@gmail.com" ]
-  spec.homepage    = "http://github.com/basecamp/mass_encryption/settings/access"
-  spec.summary     = "Mass encryption for active record"
+  spec.email       = [ "jorge@hey.com" ]
+  spec.homepage    = "http://github.com/basecamp/mass_encryption"
+  spec.summary     = "Encrypt data in mass with Active Record Encryption"
   spec.license     = "MIT"
 
   spec.metadata["homepage_uri"] = spec.homepage
