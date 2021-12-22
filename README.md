@@ -42,18 +42,11 @@ rake mass_encryption:encrypt_all_in_tracks
 
 By default it will encrypt all the models with encrypted attributes using a batch size of 1000 records per job and one track, so only one job will encrypt data at any given moment.
 
-You can customize it by passing the following environment variables:
-
-* `ONLY`. Comma-separated list of class names to encrypt
-* `EXCLUDE`. Comma-separated list of class name to exclude.
-* `FROM_ID`. Id to use as an anchor to start encryption. This is handy to resume encryption operations that got interrupted. Ids lower than it won't be encrypted.
-* `BATCH_SIZE`. The amount of records each job will encrypt. By default it's 1000.
-* `TRACKS`: The number of tracks to use. By default it's 1.
-
 For example:
 
 ```shell
- rake mass_encryption:encrypt_all_in_tracks EXCEPT="Post" FROM_ID=10 TRACKS=6 # Encrypt al the posts starting with id 10 using 6 encryption jobs
+# Encrypt al the posts starting with id 10 using 6 encryption jobs
+rake mass_encryption:encrypt_all_in_tracks EXCEPT="Post" FROM_ID=10 TRACKS=6
 ```
 
 ### Encrypt data in parallel jobs
@@ -62,22 +55,26 @@ In this mode, it will simply loop through all the batches of records and enqueue
 
 By default it will encrypt all the models with encrypted attributes using a batch size of 1000 records per job.
 
-You can customize it by passing the following environment variables:
-
-* `ONLY`. Comma-separated list of class names to encrypt
-* `EXCLUDE`. Comma-separated list of class name to exclude.
-* `FROM_ID`. Id to use as an anchor to start encryption. This is handy to resume encryption operations that got interrupted. Ids lower than it won't be encrypted.
-* `BATCH_SIZE`. The amount of records each job will encrypt. By default it's 1000.
-
 ```shell
- rake mass_encryption:encrypt_all_in_parallel_jobs EXCEPT="Post" FROM_ID=10 BATCH_SIZE=500 # Encrypt al the posts starting with id 10 using as many jobs as needed to encrypt them in batches of 500 records 
+# Encrypt al the posts starting with id 10 using as many jobs as needed to encrypt them in batches of 500 records 
+rake mass_encryption:encrypt_all_in_parallel_jobs EXCEPT="Post" FROM_ID=10 BATCH_SIZE=500
 ```
+
+### Options
+
+You can customize it by passing the following environment variables when invoking the rake task:
+
+* `ONLY`. Comma-separated list of class names to encrypt.
+* `EXCLUDE`. Comma-separated list of class name to exclude.
+* `FROM_ID`. Id to use as an anchor to start encryption. This is handy to resume encryption operations that got interrupted. Ids lower than it won't be encrypted. By default it will be the id of the first model record.
+* `BATCH_SIZE`. The amount of records each job will encrypt. By default it's 1000.
+* `TRACKS`: The number of tracks to use (only available when encrypting in tracks). By default it's 1.
 
 ## How it works
 
-MassEncryption internally uses [`upsert_all`](https://edgeapi.rubyonrails.org/classes/ActiveRecord/Persistence/ClassMethods.html#method-i-upsert_all) to perform fast updates in bulk.
+* MassEncryption internally uses [`upsert_all`](https://edgeapi.rubyonrails.org/classes/ActiveRecord/Persistence/ClassMethods.html#method-i-upsert_all) to perform fast updates in bulk.
 
-If there was some error when trying to update the records, MassEncryption jobs will try to encrypt the records in the batch one by one. They will collect all the individual errors and raise a single `MassEncryption::MassEncryption::BatchEncryptionError` error aggregating them all. This way, one record failing to encrypt won't prevent other records in teh batch from being encrypted. 
+* If there was some error when trying to update the records, MassEncryption jobs will try to encrypt the records in the batch one by one. They will collect all the individual errors and raise a single `MassEncryption::MassEncryption::BatchEncryptionError` error aggregating them all. This way, one record failing to encrypt won't prevent other records in teh batch from being encrypted. 
 
 ## License
 

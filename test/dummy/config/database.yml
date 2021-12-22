@@ -1,18 +1,54 @@
-default: &default
-  adapter: mysql2
-  username: root
-  pool: 5
-  host: "127.0.0.1"
-  port: 33306
+  <% if ENV["TARGET_DB"]=="mysql" %>
 
-development:
-  <<: *default
-  database: dummy_mass_encryption_development
+  # MySQL
+  default: &default
+    adapter: mysql2
+    username: root
+    pool: 5
+    host: "127.0.0.1"
+    port: 33306
 
-test:
-  <<: *default
-  database: dummy_mass_encryption_test
+  development:
+    <<: *default
+    database: mass_encryption_development
 
-production:
-  <<: *default
-  database: dummy_mass_encryption_production
+  test:
+    <<: *default
+    database: mass_encryption_test
+
+    <% elsif ENV["TARGET_DB"]=="postgres" %>
+
+  # Postgres
+  default: &default
+    adapter: postgresql
+    encoding: unicode
+    username: postgres
+    pool: 5
+    host: "127.0.0.1"
+    port: 55432
+
+  development:
+    <<: *default
+    database: mass_encryption_development
+
+  test:
+    <<: *default
+    database: mass_encryption_test
+
+    <% else %>
+
+  # SQLite by default
+  default: &default
+    adapter: sqlite3
+    pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 5 } %>
+    timeout: 5000
+
+  development:
+    <<: *default
+    database: db/development.sqlite3
+
+  test:
+    <<: *default
+    database: db/test.sqlite3
+
+    <% end %>

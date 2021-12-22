@@ -59,13 +59,7 @@ class MassEncryption::Batch
     end
 
     def encrypt_using_upsert
-      klass.upsert_all records.collect(&:attributes), on_duplicate: Arel.sql(encrypted_attributes_assignments_sql)
-    end
-
-    def encrypted_attributes_assignments_sql
-      klass.encrypted_attributes.collect do |name|
-        "`#{name}`=VALUES(`#{name}`)"
-      end.join(", ")
+      klass.upsert_all records.collect(&:attributes), update_only: klass.encrypted_attributes, record_timestamps: false
     end
 
     def encrypt_record_by_record

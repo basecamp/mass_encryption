@@ -49,7 +49,7 @@ class MassEncryption::Encryptor
     end
 
     def enqueue_all_encryption_jobs_for(klass)
-      all_records_for(klass).in_batches(of: batch_size) do |records|
+      all_records_for(klass).select(:id).in_batches(of: batch_size, load: true) do |records|
         MassEncryption::Batch.new(klass: klass, from_id: records.first.id, size: batch_size).encrypt_later(auto_enqueue_next: false)
       end
     end
