@@ -11,7 +11,7 @@ jobs:
       - name: Setup Ruby and install gems
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: 3.0.2
+          ruby-version: 2.7.2
           bundler-cache: true
       - name: Run rubocop
         run: |
@@ -24,6 +24,10 @@ jobs:
         ruby-version: [2.7.2, 3.0.2]
         database: [sqlite, postgres, mysql]
     services:
+      redis:
+        image: redis
+        ports:
+          - 6379:6379
       postgres:
         image: postgres:13.4
         env:
@@ -31,8 +35,7 @@ jobs:
         ports:
           - 55432:5432
       mysql:
-        platform: linux/x86_64
-        image: mariadb:latest
+        image: percona:5.7.22
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
         ports:
