@@ -74,7 +74,7 @@ You can customize it by passing the following environment variables when invokin
 
 * MassEncryption internally uses [`upsert_all`](https://edgeapi.rubyonrails.org/classes/ActiveRecord/Persistence/ClassMethods.html#method-i-upsert_all) to perform fast updates in bulk.
 
-* If there was some error when trying to update the records, MassEncryption jobs will try to encrypt the records in the batch one by one. They will collect all the individual errors and raise a single `MassEncryption::MassEncryption::BatchEncryptionError` error aggregating them all. This way, one record failing to encrypt won't prevent other records in teh batch from being encrypted. 
+* If there was some error when trying to update the records, MassEncryption jobs will try to encrypt the records in the batch one by one. They will collect all the individual errors and raise a single `MassEncryption::MassEncryption::BatchEncryptionError` error aggregating them all. This way, one record failing to encrypt won't prevent other records in the batch from being encrypted. 
 
 ## License
 
