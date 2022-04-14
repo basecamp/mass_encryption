@@ -1,5 +1,0 @@
-<% 40.times do |index| %>
-post_<%= index %>:
-  id: <%= 100 + index %>
-  title: Some post <%= index %>
-<% end %>
