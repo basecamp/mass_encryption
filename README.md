@@ -45,7 +45,7 @@ By default it will encrypt all the models with encrypted attributes using a batc
 For example:
 
 ```shell
-# Encrypt al the posts starting with id 10 using 6 encryption jobs
+# Encrypt all the posts starting with id 10 using 6 encryption jobs
 rake mass_encryption:encrypt_all_in_tracks EXCEPT="Post" FROM_ID=10 TRACKS=6
 ```
 
@@ -56,7 +56,7 @@ In this mode, it will simply loop through all the batches of records and enqueue
 By default it will encrypt all the models with encrypted attributes using a batch size of 1000 records per job.
 
 ```shell
-# Encrypt al the posts starting with id 10 using as many jobs as needed to encrypt them in batches of 500 records 
+# Encrypt all the posts starting with id 10 using as many jobs as needed to encrypt them in batches of 500 records 
 rake mass_encryption:encrypt_all_in_parallel_jobs EXCEPT="Post" FROM_ID=10 BATCH_SIZE=500
 ```
 
