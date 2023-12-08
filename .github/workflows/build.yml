@@ -35,7 +35,7 @@ jobs:
         ports:
           - 55432:5432
       mysql:
-        image: percona:5.7.22
+        image: percona:8.0
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
         ports:
