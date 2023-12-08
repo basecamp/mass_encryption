@@ -1,4 +1,4 @@
-module MassEncryption
+class MassEncryption
   class Engine < ::Rails::Engine
     isolate_namespace MassEncryption
 

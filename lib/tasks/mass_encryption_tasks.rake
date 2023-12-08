@@ -6,7 +6,7 @@ namespace :mass_encryption do
     tracks = (ENV["TRACKS"] || 1).to_i
     batch_size = (ENV["BATCH_SIZE"] || 1000).to_i
 
-    MassEncryption::Encryptor.new(from_id: from_id, only: only, except: except, tracks_count: tracks, silent: false, batch_size: batch_size).encrypt_all_later
+    MassEncryption.new(from_id: from_id, only: only, except: except, tracks_count: tracks, silent: false, batch_size: batch_size).perform_later
   end
 
   task encrypt_all_in_parallel_jobs: :environment do
@@ -15,7 +15,7 @@ namespace :mass_encryption do
     except = MassEncryption::Tasks.classes_from(ENV["EXCEPT"])
     batch_size = (ENV["BATCH_SIZE"] || 1000).to_i
 
-    MassEncryption::Encryptor.new(from_id: from_id, only: only, except: except, silent: false, batch_size: batch_size).encrypt_all_later
+    MassEncryption.new(from_id: from_id, only: only, except: except, silent: false, batch_size: batch_size).perform_later
   end
 end
 
