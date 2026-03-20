@@ -53,7 +53,7 @@ jobs:
         database: [sqlite, postgres, mysql]
     services:
       redis:
-        image: redis # zizmor: ignore[unpinned-images] -- version tag is fine for service containers
+        image: redis:7 # zizmor: ignore[unpinned-images] -- version tag is fine for service containers
         ports:
           - 6379:6379
       postgres:
