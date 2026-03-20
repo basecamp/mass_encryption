@@ -20,6 +20,7 @@ jobs:
     name: Tests
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
         ruby-version: [3.0.2]
         database: [sqlite, postgres, mysql]
@@ -34,12 +35,22 @@ jobs:
           POSTGRES_HOST_AUTH_METHOD: "trust"
         ports:
           - 55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
       mysql:
         image: percona:5.7.22
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: "yes"
         ports:
           - 33306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h 127.0.0.1"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     env:
       TARGET_DB: ${{ matrix.database }}
     steps:
